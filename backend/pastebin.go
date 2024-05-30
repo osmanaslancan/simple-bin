@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -51,9 +52,8 @@ func main() {
 
 	router.Static("/assets", "./www/assets/")
 
-	api := router.Group("/api", gin.BasicAuth(gin.Accounts{
-		os.Getenv("PASTEBIN_USER"): os.Getenv("PASTEBIN_PASSWORD"),
-	}))
+	api := router.Group("/api")
+	api.Use(tokenCheck)
 	{
 		api.POST("/bin/create", createBin)
 	}
@@ -71,6 +71,25 @@ func main() {
 	}
 }
 
+func tokenCheck(c *gin.Context) {
+	bearer := c.GetHeader("Authorization")
+
+	if !strings.HasPrefix(bearer, "Bearer ") {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	token := strings.TrimPrefix(bearer, "Bearer ")
+
+	if token != os.Getenv("API_TOKEN") {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	c.Next()
+
+}
+
 func createBin(c *gin.Context) {
 	var dto binCreateDto
 
@@ -79,7 +98,7 @@ func createBin(c *gin.Context) {
 	}
 
 	if dto.Content == "" {
-		c.Status(http.StatusBadRequest)
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
@@ -93,7 +112,7 @@ func createBin(c *gin.Context) {
 	file, err := os.Create(prefixedDataDir(guid.String()))
 
 	if err != nil {
-		c.Status(http.StatusInternalServerError)
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
@@ -126,7 +145,7 @@ func getBinByID(c *gin.Context) {
 	content, error := io.ReadAll(file)
 
 	if error != nil {
-		c.Status(http.StatusNotFound)
+		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 

@@ -16,8 +16,7 @@ import { AxiosError } from 'axios';
 
 const formSchema = z.object({
   content: z.string({ required_error: "Fill up your bin first!" }).max(10000),
-  username: z.string({ required_error: "Username is required" }).min(3),
-  password: z.string({ required_error: "Password is required" }).min(3),
+  token: z.string({ required_error: "Token is required" }).min(3),
 })
 
 type FormType = z.infer<typeof formSchema>
@@ -33,7 +32,7 @@ function App() {
   const mutation = useMutation({
     mutationFn: async (data: FormType) => {
       try {
-        const response = await api.createBin({ content: data.content }, { username: data.username, password: data.password });
+        const response = await api.createBin({ content: data.content }, { token: data.token });
 
         if (response.status !== 201) {
           throw new Error("An error occurred while creating the bin");
@@ -46,10 +45,7 @@ function App() {
         })
       } catch (error: unknown) {
         if (error instanceof AxiosError && error.response?.status === 401) {
-          form.setError("username", {
-            message: "Invalid credentials"
-          })
-          form.setError("password", {
+          form.setError("token", {
             message: "Invalid credentials"
           })
         }
@@ -81,26 +77,11 @@ function App() {
               <div className="grid gap-4 py-4">
                 <FormField
                   control={form.control}
-                  name="username"
+                  name="token"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Username
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} id="username" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Password
+                        Token
                       </FormLabel>
                       <FormControl>
                         <Input {...field} type='password' id="password" />

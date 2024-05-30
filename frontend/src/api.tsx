@@ -8,8 +8,7 @@ interface BinDto {
 }
 
 interface Credentials {
-    username: string
-    password: string
+    token:string
 }
 
 class Api {
@@ -22,7 +21,9 @@ class Api {
 
     async createBin(data: { content: string }, credentials: Credentials) {
         return this._axios.post<BinDto>("/bin/create", data, {
-            auth: credentials
+            headers: {
+                Authorization: `Bearer ${credentials.token}`
+            }
         });
     }
 
