@@ -64,7 +64,11 @@ func main() {
 		c.File("./www/index.html")
 	})
 
-	router.Run("localhost:8080")
+	if os.Getenv("GIN_MODE") == "release" {
+		router.Run("0.0.0.0:8080")
+	} else {
+		router.Run("localhost:8080")
+	}
 }
 
 func createBin(c *gin.Context) {
