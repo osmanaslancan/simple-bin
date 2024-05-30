@@ -51,7 +51,7 @@ func main() {
 	}))
 
 	router.Static("/assets", "./www/assets/")
-
+	router.StaticFile("/pastebin.svg", "./www/pastebin.svg")
 	api := router.Group("/api")
 	api.Use(tokenCheck)
 	{
