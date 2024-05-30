@@ -2,7 +2,6 @@ package main
 
 import (
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -34,11 +33,7 @@ func prefixedDataDir(file string) string {
 func main() {
 	os.Mkdir("data", 0777)
 
-	err := godotenv.Load(".env.dev")
-
-	if err != nil {
-		log.Fatal("Error loading .env.dev file")
-	}
+	godotenv.Load(".env.dev")
 
 	router := gin.Default()
 
