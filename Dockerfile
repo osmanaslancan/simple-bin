@@ -13,6 +13,7 @@ RUN go build -v -o ./build/app .
 
 FROM alpine as final
 WORKDIR /app
+ENV GIN_MODE=release
 COPY --from=frontend-build /app/dist/ ./www
 COPY --from=backend-build /app/build/app .
 CMD ["./app"]
